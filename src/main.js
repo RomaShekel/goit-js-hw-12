@@ -130,19 +130,6 @@ function addImagesToGallery(images) {
 
 
   lightbox.refresh();
-
-
-  // const totalPages = Math.ceil(totalHits / 120);
-  // const isLastPage = currentPage === totalPages;
-
-  // if (isLastPage) {
-  //   loadMoreBtn.classList.remove("load-more-btn-active");
-  //   iziToast.info({
-  //     title: "End of Collection",
-  //     message: "We're sorry, but you've reached the end of search results.",
-  //   });
-  // }
-
 }
 
 function clearGallery() {
