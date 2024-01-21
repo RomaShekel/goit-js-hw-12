@@ -129,7 +129,7 @@ span {
   align-items: center;
 }
 
-.visibility {
+.hidden {
   display: flex;
 }
 

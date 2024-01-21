@@ -4,6 +4,7 @@ import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
 import axios from "axios";
 
+const lightbox = new SimpleLightbox('.gallery a');
 const form = document.querySelector("form");
 const input = document.querySelector(".input");
 const gallery = document.querySelector(".gallery");
@@ -13,14 +14,20 @@ const loadMoreBtn = document.querySelector(".load-more-btn");
 let currentPage = 1;
 let currentQuery = "";
 
+let totalHits = 0; //змінна збігів
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   currentQuery = input.value;
   currentPage = 1;
-  loader.classList.add("visibility");
+  loader.classList.add("hidden");
   loadMoreBtn.classList.remove("load-more-btn-active");
+
   try {
     const data = await searchImages(currentQuery, currentPage);
+
+    totalHits = data.total || 0; // перезапис змінної з збігами 
+
     if (data.hits.length > 0) {
       clearGallery();
       addImagesToGallery(data.hits);
@@ -31,7 +38,7 @@ form.addEventListener("submit", async (event) => {
       });
     }
   } catch (error) {
-    loader.classList.remove("visibility");
+    loader.classList.remove("hidden");
     iziToast.error({
       title: "Error",
       message: "Sorry, there was an error. Please try again later.",
@@ -42,16 +49,32 @@ form.addEventListener("submit", async (event) => {
 
 loadMoreBtn.addEventListener("click", async () => {
   currentPage++;
-  loader.classList.add("visibility");
+  loader.classList.add("hidden");
   loadMoreBtn.classList.remove("load-more-btn-active");
+
   try {
     const data = await searchImages(currentQuery, currentPage);
+
     if (data.hits.length > 0) {
       addImagesToGallery(data.hits);
       smoothScroll(260 * 2);
     }
+
+    const isLastPage = currentPage * data.hits.length >= totalHits;
+
+    const totalPages = Math.ceil(totalHits / 40);
+    // const isLastPage = currentPage === totalPages;
+
+  if (isLastPage) {
+    loadMoreBtn.classList.remove("load-more-btn-active");
+    iziToast.info({
+      title: "End of Collection",
+      message: "We're sorry, but you've reached the end of search results.",
+    });
+  }
+
   } catch (error) {
-    loader.classList.remove("visibility");
+    loader.classList.remove("hidden");
     iziToast.error({
       title: "Error",
       message: "Sorry, there was an error. Please try again later.",
@@ -69,7 +92,7 @@ async function searchImages(query, page) {
 
     const response = await axios.get(requestUrl);
 
-    if (!response.data.hits) {
+    if (!response.data || response.data.hits.length === 0) {
       throw new Error("Invalid response from the server");
     }
 
@@ -80,7 +103,7 @@ async function searchImages(query, page) {
 }
 
 function addImagesToGallery(images) {
-  loader.classList.remove("visibility");
+  loader.classList.remove("hidden");
   images.forEach((image) => {
     const cardMarkup = `
       <a href="${image.largeImageURL}" data-lightbox="gallery" data-title="${image.tags}">
@@ -108,20 +131,20 @@ function addImagesToGallery(images) {
   });
   loadMoreBtn.classList.add("load-more-btn-active");
 
-  const lightbox = new SimpleLightbox('.gallery a');
+
   lightbox.refresh();
 
-  const totalHits = 120;
-  const totalPages = Math.ceil(totalHits / 40);
-  const isLastPage = currentPage === totalPages;
 
-  if (isLastPage) {
-    loadMoreBtn.classList.remove("load-more-btn-active");
-    iziToast.info({
-      title: "End of Collection",
-      message: "We're sorry, but you've reached the end of search results.",
-    });
-  }
+  // const totalPages = Math.ceil(totalHits / 120);
+  // const isLastPage = currentPage === totalPages;
+
+  // if (isLastPage) {
+  //   loadMoreBtn.classList.remove("load-more-btn-active");
+  //   iziToast.info({
+  //     title: "End of Collection",
+  //     message: "We're sorry, but you've reached the end of search results.",
+  //   });
+  // }
 
 }
 
