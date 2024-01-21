@@ -26,7 +26,7 @@ form.addEventListener("submit", async (event) => {
   try {
     const data = await searchImages(currentQuery, currentPage);
 
-    totalHits = data.total || 0; // перезапис змінної з збігами 
+    totalHits = data.totalHitshits || 0;
 
     if (data.hits.length > 0) {
       clearGallery();
@@ -60,12 +60,9 @@ loadMoreBtn.addEventListener("click", async () => {
       smoothScroll(260 * 2);
     }
 
-    const isLastPage = currentPage * data.hits.length >= totalHits;
-
     const totalPages = Math.ceil(totalHits / 40);
-    // const isLastPage = currentPage === totalPages;
 
-  if (isLastPage) {
+  if (currentPage > totalPages) {
     loadMoreBtn.classList.remove("load-more-btn-active");
     iziToast.info({
       title: "End of Collection",
