@@ -20,14 +20,13 @@ form.addEventListener("submit", async (event) => {
   currentQuery = input.value;
   currentPage = 1;
   loaderAddVisible();
-
+  loadMoreBtnInactive()
+  clearGallery();
   try {
     const data = await searchImages(currentQuery, currentPage);
-
-    totalHits = data.totalHitshits || 0;
+    totalHits = data.totalhits || 0;
 
     if (data.hits.length > 0) {
-      clearGallery();
       addImagesToGallery(data.hits);
     } else {
       iziToast.error({
@@ -37,7 +36,6 @@ form.addEventListener("submit", async (event) => {
     }
   } catch (error) {
     loaderRemoveVisible();
-
     iziToast.error({
       title: "Error",
       message: "Sorry, there was an error. Please try again later.",
@@ -58,7 +56,6 @@ loadMoreBtn.addEventListener("click", async () => {
       addImagesToGallery(data.hits);
       smoothScroll(260 * 2);
     }
-
     const totalPages = Math.ceil(totalHits / perPage);
 
   if (currentPage > totalPages) {
@@ -68,7 +65,6 @@ loadMoreBtn.addEventListener("click", async () => {
       message: "We're sorry, but you've reached the end of search results.",
     });
   }
-
   } catch (error) {
     loaderRemoveVisible();
     iziToast.error({
@@ -91,7 +87,6 @@ async function searchImages(query, page) {
     if (!response.data || response.data.hits.length === 0) {
       throw new Error("Invalid response from the server");
     }
-
     return response.data;
   } catch (error) {
     throw new Error(`Failed to fetch images: ${error.message}`);
@@ -126,7 +121,6 @@ function addImagesToGallery(images) {
     gallery.insertAdjacentHTML("beforeend", cardMarkup);
   });
   loadMoreBtnActive();
-
   lightbox.refresh();
 }
 
