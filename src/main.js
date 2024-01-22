@@ -38,9 +38,8 @@ form.addEventListener("submit", async (event) => {
     loaderRemoveVisible();
     iziToast.error({
       title: "Error",
-      message: "Sorry, there are no images matching your search query. Please try again!",
+      message: "Sorry, there was an error. Please try again later.",
     });
-    console.error("Error:", error);
   }
 });
 
@@ -69,7 +68,7 @@ loadMoreBtn.addEventListener("click", async () => {
     loaderRemoveVisible();
     iziToast.error({
       title: "Error",
-      message: "Sorry, there was an error. Please try again later.",
+      message: "Sorry, there are no images matching your search query. Please try again!",
     });
     console.error("Error:", error);
   }
