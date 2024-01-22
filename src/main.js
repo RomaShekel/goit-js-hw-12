@@ -13,15 +13,13 @@ const loadMoreBtn = document.querySelector(".load-more-btn");
 
 let currentPage = 1;
 let currentQuery = "";
-
-let totalHits = 0; //змінна збігів
+let totalHits = 0;
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   currentQuery = input.value;
   currentPage = 1;
-  loader.classList.add("hidden");
-  loadMoreBtn.classList.remove("load-more-btn-active");
+  loaderAddVisible();
 
   try {
     const data = await searchImages(currentQuery, currentPage);
@@ -38,7 +36,8 @@ form.addEventListener("submit", async (event) => {
       });
     }
   } catch (error) {
-    loader.classList.remove("hidden");
+    loaderRemoveVisible();
+
     iziToast.error({
       title: "Error",
       message: "Sorry, there was an error. Please try again later.",
@@ -49,8 +48,8 @@ form.addEventListener("submit", async (event) => {
 
 loadMoreBtn.addEventListener("click", async () => {
   currentPage++;
-  loader.classList.add("hidden");
-  loadMoreBtn.classList.remove("load-more-btn-active");
+  loaderAddVisible();
+  loadMoreBtnInactive();
 
   try {
     const data = await searchImages(currentQuery, currentPage);
@@ -60,10 +59,10 @@ loadMoreBtn.addEventListener("click", async () => {
       smoothScroll(260 * 2);
     }
 
-    const totalPages = Math.ceil(totalHits / 40);
+    const totalPages = Math.ceil(totalHits / perPage);
 
   if (currentPage > totalPages) {
-    loadMoreBtn.classList.remove("load-more-btn-active");
+    loadMoreBtnInactive();
     iziToast.info({
       title: "End of Collection",
       message: "We're sorry, but you've reached the end of search results.",
@@ -71,7 +70,7 @@ loadMoreBtn.addEventListener("click", async () => {
   }
 
   } catch (error) {
-    loader.classList.remove("hidden");
+    loaderRemoveVisible();
     iziToast.error({
       title: "Error",
       message: "Sorry, there was an error. Please try again later.",
@@ -80,11 +79,11 @@ loadMoreBtn.addEventListener("click", async () => {
   }
 });
 
+const perPage = 40;
 async function searchImages(query, page) {
   try {
     const apiKey = "41928884-dc2fda080aeeea262233bfc7c";
     const apiUrl = "https://pixabay.com/api/";
-    const perPage = 40;
     const requestUrl = `${apiUrl}?key=${apiKey}&q=${query}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`;
 
     const response = await axios.get(requestUrl);
@@ -100,7 +99,7 @@ async function searchImages(query, page) {
 }
 
 function addImagesToGallery(images) {
-  loader.classList.remove("hidden");
+  loaderRemoveVisible();
   images.forEach((image) => {
     const cardMarkup = `
       <a href="${image.largeImageURL}" data-lightbox="gallery" data-title="${image.tags}">
@@ -126,8 +125,7 @@ function addImagesToGallery(images) {
 
     gallery.insertAdjacentHTML("beforeend", cardMarkup);
   });
-  loadMoreBtn.classList.add("load-more-btn-active");
-
+  loadMoreBtnActive();
 
   lightbox.refresh();
 }
@@ -142,4 +140,20 @@ function smoothScroll(distance) {
     behavior: "smooth",
   });
 }
+
+function loadMoreBtnActive() {
+  loadMoreBtn.classList.add("load-more-btn-active");
+};
+
+function loadMoreBtnInactive() {
+  loadMoreBtn.classList.remove("load-more-btn-active");
+};
+
+function loaderAddVisible() {
+  loader.classList.add("visible");
+};
+
+function loaderRemoveVisible() {
+  loader.classList.remove("visible");
+};
 
